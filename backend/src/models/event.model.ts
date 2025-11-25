@@ -14,6 +14,7 @@ export interface IEvent extends Document {
   date: Date;
   joinLink: string;
   linkActive: boolean;
+  locked: boolean;
 }
 
 const EvenSchema: Schema<IEvent> = new Schema(
@@ -60,6 +61,11 @@ const EvenSchema: Schema<IEvent> = new Schema(
     linkActive: {
       type: Boolean,
       default: true,
+      required: true,
+    },
+    locked: {
+      type: Boolean,
+      default: false,
       required: true,
     },
   },

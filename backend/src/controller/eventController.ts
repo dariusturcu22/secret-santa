@@ -32,6 +32,7 @@ export const createEvent = async (req: Request, res: Response) => {
       date,
       joinLink: generateLink(),
       linkActive: true,
+      locked: false,
     });
     const savedEvent = await newEvent.save();
     res.status(201).json(savedEvent);
@@ -92,6 +93,8 @@ export const shuffleUsers = async (req: Request, res: Response) => {
     }));
 
     event.pairs = pairs;
+    event.linkActive = false;
+    event.locked = true;
     await event.save();
   } catch (error) {
     res.status(500).json({ message: "Internal server error: ", error });
