@@ -1,9 +1,8 @@
 "use client";
 
-import * as React from "react";
+import React, { useState } from "react";
 import { CalendarIcon } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
-
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Input } from "@/components/ui/input";
@@ -13,105 +12,75 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import axios from "axios";
 
-const CreateEventPage = () => {
-  return (
-    <div>
-      Enter info:
-      <Textarea placeholder="name"></Textarea>
-      <Calendar28 />
-      <Button>Submit</Button>
-    </div>
-  );
-};
+export default function CreateEventPage() {
+  const [name, setName] = useState("");
+  const [date, setDate] = useState<Date | undefined>(new Date());
+  const [open, setOpen] = useState(false);
 
-export default CreateEventPage;
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-function formatDate(date: Date | undefined) {
-  if (!date) {
-    return "";
-  }
+  const handleSubmit = async () => {
+    if (!name) return alert("Enter a name");
+    if (!date) return alert("Select a date");
+    const payload = { name, date };
+    await axios.post(`${API_URL}/events/create`, payload, {
+      withCredentials: true,
+    });
+  };
 
-  return date.toLocaleDateString("en-US", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-  });
-}
-
-function isValidDate(date: Date | undefined) {
-  if (!date) {
-    return false;
-  }
-  return !isNaN(date.getTime());
-}
-
-export function Calendar28() {
-  const [open, setOpen] = React.useState(false);
-  const [date, setDate] = React.useState<Date | undefined>(
-    new Date(Date.now())
-  );
-  const [month, setMonth] = React.useState<Date | undefined>(date);
-  const [value, setValue] = React.useState(formatDate(date));
+  const formatDate = (date: Date | undefined) =>
+    date
+      ? date.toLocaleDateString("en-US", {
+          day: "2-digit",
+          month: "long",
+          year: "numeric",
+        })
+      : "";
 
   return (
-    <div className="flex flex-col gap-3">
-      <Label htmlFor="date" className="px-1">
-        Subscription Date
-      </Label>
+    <div className="flex flex-col gap-4">
+      <Label>Event Name</Label>
+      <Textarea
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        placeholder="Event name"
+      />
+
+      <Label>Event Date</Label>
       <div className="relative flex gap-2">
         <Input
-          id="date"
-          value={value}
-          placeholder="June 01, 2025"
-          className="bg-background pr-10"
+          value={formatDate(date)}
+          placeholder="Select a date"
           onChange={(e) => {
-            const date = new Date(e.target.value);
-            setValue(e.target.value);
-            if (isValidDate(date)) {
-              setDate(date);
-              setMonth(date);
-            }
-          }}
-          onKeyDown={(e) => {
-            if (e.key === "ArrowDown") {
-              e.preventDefault();
-              setOpen(true);
-            }
+            const d = new Date(e.target.value);
+            if (!isNaN(d.getTime())) setDate(d);
           }}
         />
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
             <Button
-              id="date-picker"
+              className="absolute top-1/2 right-2 -translate-y-1/2"
               variant="ghost"
-              className="absolute top-1/2 right-2 size-6 -translate-y-1/2"
             >
-              <CalendarIcon className="size-3.5" />
-              <span className="sr-only">Select date</span>
+              <CalendarIcon />
             </Button>
           </PopoverTrigger>
-          <PopoverContent
-            className="w-auto overflow-hidden p-0"
-            align="end"
-            alignOffset={-8}
-            sideOffset={10}
-          >
+          <PopoverContent className="w-auto p-0">
             <Calendar
               mode="single"
               selected={date}
-              captionLayout="dropdown"
-              month={month}
-              onMonthChange={setMonth}
-              onSelect={(date) => {
-                setDate(date);
-                setValue(formatDate(date));
+              onSelect={(d) => {
+                setDate(d);
                 setOpen(false);
               }}
             />
           </PopoverContent>
         </Popover>
       </div>
+
+      <Button onClick={handleSubmit}>Submit</Button>
     </div>
   );
 }

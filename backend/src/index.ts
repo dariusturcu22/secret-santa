@@ -1,16 +1,28 @@
 import express from "express";
 import dotenv from "dotenv";
 import bodyParser from "body-parser";
+import cors from "cors";
 
 import clerkWebhookRouter from "./routes/clerkWebhook";
 import eventRouter from "./routes/eventRoutes";
 import { connectDB } from "./lib/db";
+import { clerkMiddleware } from "@clerk/express";
 
 dotenv.config();
 
 const PORT = process.env.PORT!;
 
 const app = express();
+
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    credentials: true,
+  })
+);
+
+app.use(express.json());
+app.use(clerkMiddleware());
 
 app.use(
   "/api/webhooks/clerk",

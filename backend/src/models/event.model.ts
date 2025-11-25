@@ -1,7 +1,5 @@
 import mongoose, { Document, Types, Schema } from "mongoose";
-import User from "./user.model";
 import { IUser } from "./user.model";
-import { table } from "node:console";
 
 export interface IEvent extends Document {
   name: string;
@@ -24,27 +22,23 @@ const EvenSchema: Schema<IEvent> = new Schema(
       required: true,
     },
     owner: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
+      type: String,
       required: true,
     },
     users: [
       {
-        type: Schema.Types.ObjectId,
-        ref: "User",
+        type: String,
         required: true,
       },
     ],
     pairs: [
       {
         giver: {
-          type: Schema.Types.ObjectId,
-          ref: "User",
+          type: String,
           required: true,
         },
         receiver: {
-          type: Schema.Types.ObjectId,
-          ref: "User",
+          type: String,
           required: true,
         },
       },

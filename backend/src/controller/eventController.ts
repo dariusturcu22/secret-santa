@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import Event from "../models/event.model";
 import { v4 as uuidV4 } from "uuid";
+import { getAuth } from "@clerk/express";
 
 export const getEvent = async (req: Request, res: Response) => {
   try {
@@ -23,18 +24,32 @@ export const getEvents = async (req: Request, res: Response) => {
 
 export const createEvent = async (req: Request, res: Response) => {
   try {
-    const { name, owner, users, pairs, date } = req.body;
+    console.log("Reached 0");
+    const { userId } = getAuth(req);
+
+    console.log("Reached 1");
+    if (!userId) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    const { name, date } = req.body;
+    console.log("Reached 2");
+
     const newEvent = new Event({
       name,
-      owner,
-      users,
-      pairs,
+      owner: userId,
+      users: [userId],
+      pairs: [],
       date,
       joinLink: generateLink(),
       linkActive: true,
       locked: false,
     });
+
+    console.log("Reached 3");
+
     const savedEvent = await newEvent.save();
+    console.log("Reached 4");
     res.status(201).json(savedEvent);
   } catch (error) {
     res.status(500).json({ message: "Internal server error: ", error });
