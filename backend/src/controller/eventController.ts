@@ -14,7 +14,11 @@ export const getEvent = async (req: Request, res: Response) => {
       users: userId,
     });
     if (!event) return res.status(404).json({ message: "Event not found" });
-    res.json(event);
+
+    const isOwner = userId === event.owner;
+    const isLocked = event.locked;
+
+    res.json({ event, isOwner, isLocked });
   } catch (error) {
     res.status(500).json({ message: "Internal server error: ", error });
   }

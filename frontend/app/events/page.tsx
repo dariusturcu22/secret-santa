@@ -27,6 +27,12 @@ const EventsPage = () => {
 
   return (
     <div className="flex flex-col gap-4 bg-white p-6 rounded shadow max-w-lg mx-auto">
+      <Link
+        href="/event/create"
+        className="px-3 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition font-medium"
+      >
+        Create Event
+      </Link>
       <h1 className="text-xl font-bold">Events</h1>
       {events.length === 0 ? (
         <p>No events found</p>

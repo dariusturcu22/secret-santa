@@ -5,6 +5,7 @@ import cors from "cors";
 
 import clerkWebhookRouter from "./routes/clerkWebhook";
 import eventRouter from "./routes/eventRoutes";
+import userRouter from "./routes/userRoutes";
 import { connectDB } from "./lib/db";
 import { clerkMiddleware } from "@clerk/express";
 
@@ -30,6 +31,7 @@ app.use(
   clerkWebhookRouter
 );
 
+app.use("/users", userRouter);
 app.use("/events", eventRouter);
 
 app.get("/", () => {

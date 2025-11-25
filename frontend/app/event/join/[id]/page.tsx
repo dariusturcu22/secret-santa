@@ -68,19 +68,6 @@ const JoinEventPage = () => {
       <p>
         <strong>Date:</strong> {new Date(event.date).toLocaleDateString()}
       </p>
-      <p>
-        <strong>Owner:</strong> {event.owner}
-      </p>
-      <p>
-        <strong>Participants:</strong>{" "}
-        {event.users.map((u) => u.toString()).join(", ")}
-      </p>
-      <p>
-        <strong>Link active:</strong> {event.linkActive ? "Yes" : "No"}
-      </p>
-      <p>
-        <strong>Link:</strong> {event.joinLink}
-      </p>
 
       <div className="flex gap-2 mt-4">
         <Button
