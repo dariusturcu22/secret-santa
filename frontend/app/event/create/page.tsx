@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import toast from "react-hot-toast";
 import { CalendarIcon } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -21,12 +22,21 @@ export default function CreateEventPage() {
   const [open, setOpen] = useState(false);
 
   const handleSubmit = async () => {
-    if (!name) return alert("Enter a name");
-    if (!date) return alert("Select a date");
-    const payload = { name, date };
-    await axios.post(`${API_URL}/events/create`, payload, {
-      withCredentials: true,
-    });
+    if (!name) return toast.error("Enter a name");
+    if (!date) return toast.error("Select a date");
+
+    try {
+      await axios.post(
+        `${API_URL}/events/create`,
+        { name, date },
+        { withCredentials: true }
+      );
+      toast.success("Event created successfully!");
+      setName("");
+      setDate(new Date());
+    } catch (error: any) {
+      toast.error(`Failed to create event: ${error.message}`);
+    }
   };
 
   const formatDate = (date: Date | undefined) =>
@@ -39,7 +49,7 @@ export default function CreateEventPage() {
       : "";
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 bg-white p-6 rounded shadow max-w-md mx-auto">
       <Label>Event Name</Label>
       <Textarea
         value={name}

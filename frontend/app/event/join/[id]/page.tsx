@@ -6,11 +6,11 @@ import { IEvent } from "@/types/event";
 import axios from "axios";
 import { useParams, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 const JoinEventPage = () => {
-  const params = useParams();
+  const { id: inviteLink } = useParams();
   const router = useRouter();
-  const inviteLink = params.id;
   const [event, setEvent] = useState<IEvent | null>(null);
   const [loading, setLoading] = useState(true);
   const [eventId, setEventId] = useState<string | null>(null);
@@ -20,20 +20,17 @@ const JoinEventPage = () => {
       const res = await axios.get(`${API_URL}/events/join/${inviteLink}`, {
         withCredentials: true,
       });
-
       const { event, hasAlreadyJoined } = res.data;
-
-      const id = event._id;
-      setEventId(id);
+      setEventId(event._id);
 
       if (hasAlreadyJoined) {
-        router.replace(`/event/${id}`);
+        router.replace(`/event/${event._id}`);
         return;
       }
 
       setEvent(event);
-    } catch (error) {
-      console.error("Failed to fetch event: ", error);
+    } catch (error: any) {
+      toast.error(`Failed to fetch event: ${error.message}`);
     } finally {
       setLoading(false);
     }
@@ -53,8 +50,8 @@ const JoinEventPage = () => {
         { withCredentials: true }
       );
       router.push(`/event/${eventId}`);
-    } catch (error) {
-      console.error("Failed to join event: ", error);
+    } catch (error: any) {
+      toast.error(`Failed to join event: ${error.message}`);
     }
   };
 
@@ -66,20 +63,40 @@ const JoinEventPage = () => {
   if (!event) return <div>Event not found</div>;
 
   return (
-    <>
-      <div className="flex flex-col gap-4">
-        <h1>{event.name}</h1>
-        <p>Date: {new Date(event.date).toLocaleDateString()}</p>
-        <p>Owner: {event.owner}</p>
-        <p>Participants: {event.users.map((u) => u.toString()).join(", ")}</p>
-        <p>Link active: {event.linkActive ? "Yes" : "No"}</p>
-        <p>Link: {event.joinLink}</p>
-      </div>
+    <div className="flex flex-col gap-4 bg-white p-6 rounded shadow max-w-md mx-auto">
+      <h1 className="text-xl font-bold">{event.name}</h1>
+      <p>
+        <strong>Date:</strong> {new Date(event.date).toLocaleDateString()}
+      </p>
+      <p>
+        <strong>Owner:</strong> {event.owner}
+      </p>
+      <p>
+        <strong>Participants:</strong>{" "}
+        {event.users.map((u) => u.toString()).join(", ")}
+      </p>
+      <p>
+        <strong>Link active:</strong> {event.linkActive ? "Yes" : "No"}
+      </p>
+      <p>
+        <strong>Link:</strong> {event.joinLink}
+      </p>
+
       <div className="flex gap-2 mt-4">
-        <Button onClick={handleYes}>Yes</Button>
-        <Button onClick={handleNo}>No</Button>
+        <Button
+          className="bg-green-600 text-white hover:bg-green-700"
+          onClick={handleYes}
+        >
+          Yes
+        </Button>
+        <Button
+          className="bg-red-600 text-white hover:bg-red-700"
+          onClick={handleNo}
+        >
+          No
+        </Button>
       </div>
-    </>
+    </div>
   );
 };
 

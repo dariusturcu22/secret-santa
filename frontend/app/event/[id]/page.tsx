@@ -3,12 +3,12 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import axios from "axios";
+import toast from "react-hot-toast";
 import { API_URL } from "@/constants/api";
 import { IEvent } from "@/types/event";
 
 const EventPage = () => {
-  const params = useParams();
-  const eventId = params.id;
+  const { id: eventId } = useParams();
   const [event, setEvent] = useState<IEvent | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -18,8 +18,8 @@ const EventPage = () => {
         withCredentials: true,
       });
       setEvent(res.data);
-    } catch (error) {
-      console.error("Failed to fetch event: ", error);
+    } catch (error: any) {
+      toast.error(`Failed to fetch event: ${error.message}`);
     } finally {
       setLoading(false);
     }
@@ -33,13 +33,23 @@ const EventPage = () => {
   if (!event) return <div>Event not found</div>;
 
   return (
-    <div className="flex flex-col gap-4">
-      <h1>{event.name}</h1>
-      <p>Date: {new Date(event.date).toLocaleDateString()}</p>
-      <p>Owner: {event.owner}</p>
-      <p>Participants: {event.users.join(", ")}</p>
-      <p>Link active: {event.linkActive ? "Yes" : "No"}</p>
-      <p>Link: {event.joinLink}</p>
+    <div className="flex flex-col gap-4 bg-white p-6 rounded shadow">
+      <h1 className="text-xl font-bold">{event.name}</h1>
+      <p>
+        <strong>Date:</strong> {new Date(event.date).toLocaleDateString()}
+      </p>
+      <p>
+        <strong>Owner:</strong> {event.owner}
+      </p>
+      <p>
+        <strong>Participants:</strong> {event.users.join(", ")}
+      </p>
+      <p>
+        <strong>Link Active:</strong> {event.linkActive ? "Yes" : "No"}
+      </p>
+      <p>
+        <strong>Link:</strong> {event.joinLink}
+      </p>
     </div>
   );
 };
