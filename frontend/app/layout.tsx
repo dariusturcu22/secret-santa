@@ -10,6 +10,7 @@ import {
 import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "react-hot-toast";
 import "./globals.css";
+import Link from "next/link";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,7 +36,7 @@ export default function RootLayout({
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
-          <header className="flex justify-end items-center p-4 gap-4 h-16 bg-gray-50 border-b shadow-sm">
+          <header className="flex justify-between items-center p-4 gap-4 h-16 bg-gray-50 border-b shadow-sm">
             <SignedOut>
               <SignInButton>
                 <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
@@ -49,6 +50,12 @@ export default function RootLayout({
               </SignUpButton>
             </SignedOut>
             <SignedIn>
+              <Link
+                href="/events"
+                className="px-3 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition font-medium"
+              >
+                Events
+              </Link>
               <UserButton />
             </SignedIn>
           </header>
