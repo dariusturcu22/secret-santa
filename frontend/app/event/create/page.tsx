@@ -13,13 +13,12 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import axios from "axios";
+import { API_URL } from "@/constants/api";
 
 export default function CreateEventPage() {
   const [name, setName] = useState("");
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [open, setOpen] = useState(false);
-
-  const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
   const handleSubmit = async () => {
     if (!name) return alert("Enter a name");

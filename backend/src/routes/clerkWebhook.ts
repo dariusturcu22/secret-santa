@@ -13,24 +13,25 @@ router.post("/", async (req: Request, res: Response) => {
     const evt = await verifyWebhook(req, {
       signingSecret: CLERK_WEBHOOK_SECRET,
     });
+
     const eventType = evt.type;
     const data = evt.data as any;
 
-    const email =
-      data.primary_email_address_id || data.email_addresses?.[0]?.email_address;
-    const firstName = data.first_name || data.username || "Unknown";
+    const email = data.email_addresses?.[0]?.email_address || "unknown";
+
+    const username = data.username || data.first_name || "unknown";
 
     switch (eventType) {
       case "user.created":
         await User.updateOne(
           { clerkId: data.id },
-          { clerkId: data.id, email, firstName },
+          { clerkId: data.id, email, username },
           { upsert: true }
         );
         break;
 
       case "user.updated":
-        await User.updateOne({ clerkId: data.id }, { email, firstName });
+        await User.updateOne({ clerkId: data.id }, { email, username });
         break;
 
       case "user.deleted":
@@ -42,8 +43,8 @@ router.post("/", async (req: Request, res: Response) => {
     }
 
     res.status(200).send("ok");
-  } catch (err) {
-    console.error("Webhook error:", err);
+  } catch (error) {
+    console.error("Webhook error:", error);
     res.status(400).send("Invalid webhook");
   }
 });

@@ -5,7 +5,14 @@ import { getAuth } from "@clerk/express";
 
 export const getEvent = async (req: Request, res: Response) => {
   try {
-    const event = await Event.findOne({ _id: req.params.eventId });
+    const { userId } = getAuth(req);
+    if (!userId) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    const event = await Event.findOne({
+      _id: req.params.eventId,
+      users: userId,
+    });
     if (!event) return res.status(404).json({ message: "Event not found" });
     res.json(event);
   } catch (error) {
@@ -15,7 +22,11 @@ export const getEvent = async (req: Request, res: Response) => {
 
 export const getEvents = async (req: Request, res: Response) => {
   try {
-    const events = await Event.find({ users: req.params.userId });
+    const { userId } = getAuth(req);
+    if (!userId) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    const events = await Event.find({ users: userId });
     res.json(events);
   } catch (error) {
     res.status(500).json({ message: "Internal server error: ", error });
@@ -24,16 +35,13 @@ export const getEvents = async (req: Request, res: Response) => {
 
 export const createEvent = async (req: Request, res: Response) => {
   try {
-    console.log("Reached 0");
     const { userId } = getAuth(req);
 
-    console.log("Reached 1");
     if (!userId) {
       return res.status(401).json({ message: "Not authenticated" });
     }
 
     const { name, date } = req.body;
-    console.log("Reached 2");
 
     const newEvent = new Event({
       name,
@@ -46,10 +54,7 @@ export const createEvent = async (req: Request, res: Response) => {
       locked: false,
     });
 
-    console.log("Reached 3");
-
     const savedEvent = await newEvent.save();
-    console.log("Reached 4");
     res.status(201).json(savedEvent);
   } catch (error) {
     res.status(500).json({ message: "Internal server error: ", error });
@@ -58,13 +63,25 @@ export const createEvent = async (req: Request, res: Response) => {
 
 export const joinEvent = async (req: Request, res: Response) => {
   try {
+    const { userId } = getAuth(req);
+
+    if (!userId) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
     const inviteLink = req.params.inviteId;
     const event = await Event.findOne({ joinLink: inviteLink });
     if (!event) return res.status(404).json({ message: "Event not found" });
+
     const isLinkActive = event.linkActive;
     if (!isLinkActive)
       return res.status(403).json({ message: "Invite link expired" });
-    res.status(200).json(event);
+
+    const hasAlreadyJoined = event.users.some(
+      (user) => user.toString() === userId
+    );
+
+    res.status(200).json({ event, hasAlreadyJoined });
   } catch (error) {
     res.status(500).json({ message: "Internal server error: ", error });
   }
@@ -72,10 +89,12 @@ export const joinEvent = async (req: Request, res: Response) => {
 
 export const enterEvent = async (req: Request, res: Response) => {
   try {
+    const { userId } = getAuth(req);
+    if (!userId) return res.status(401).json({ message: "Not authenticated" });
+
     const event = await Event.findOne({ _id: req.params.eventId });
     if (!event) return res.status(404).json({ message: "Event not found" });
-    const userId = req.body.userId;
-    if (!userId) return res.status(400).json({ message: "Missing user id" });
+
     if (event.users.includes(userId))
       return res.status(400).json({ message: "User already in event" });
 
@@ -84,7 +103,7 @@ export const enterEvent = async (req: Request, res: Response) => {
 
     res.status(200).json({ message: "User added", event });
   } catch (error) {
-    res.status(500).json({ message: "Internal server error: ", error });
+    res.status(500).json({ message: "Internal server error", error });
   }
 };
 

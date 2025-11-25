@@ -3,11 +3,11 @@ import { IUser } from "./user.model";
 
 export interface IEvent extends Document {
   name: string;
-  owner: Types.ObjectId | IUser;
-  users: (Types.ObjectId | IUser)[];
+  owner: string;
+  users: string[];
   pairs: {
-    giver: Types.ObjectId | IUser;
-    receiver: Types.ObjectId | IUser;
+    giver: string;
+    receiver: string;
   }[];
   date: Date;
   joinLink: string;

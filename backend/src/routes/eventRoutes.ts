@@ -12,7 +12,7 @@ const router = Router();
 
 router.get("/:eventId", getEvent);
 
-router.get("/get/:userId", getEvents);
+router.get("/", getEvents);
 
 router.post("/create", createEvent);
 
