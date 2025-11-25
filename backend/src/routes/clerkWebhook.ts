@@ -22,7 +22,6 @@ router.post("/", async (req: Request, res: Response) => {
 
     switch (eventType) {
       case "user.created":
-        // Use upsert: create if not exists, update if exists
         await User.updateOne(
           { clerkId: data.id },
           { clerkId: data.id, email, firstName },

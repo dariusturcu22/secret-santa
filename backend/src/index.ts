@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import bodyParser from "body-parser";
 
 import clerkWebhookRouter from "./routes/clerkWebhook";
+import eventRouter from "./routes/eventRoutes";
 import { connectDB } from "./lib/db";
 
 dotenv.config();
@@ -16,6 +17,8 @@ app.use(
   bodyParser.raw({ type: "application/json" }),
   clerkWebhookRouter
 );
+
+app.use("/events", eventRouter);
 
 app.get("/", () => {
   console.log("home route");
